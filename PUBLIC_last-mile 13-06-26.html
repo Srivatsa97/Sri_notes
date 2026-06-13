@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Protection Is Cyber Resilience</title>
+  <meta name="description" content="Backup used to be insurance. In the age of AI-accelerated ransomware, data protection is the last line of cyber defence. A field note on closing the gap, with Commvault as the worked example. By Srivatsa V Jamadagni." />
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --ink: #141414;
+      --muted: #686057;
+      --soft: #8d8378;
+      --line: #d8cdbd;
+      --card: #fffaf1;
+      --accent: #ff6b1a;
+      --accent-soft: #ffe2cf;
+      --dark: #141414;
+      --dark-muted: rgba(246,241,232,0.65);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; padding: 0;
+      color: var(--ink);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      line-height: 1.5;
+      background: radial-gradient(circle at 1px 1px, rgba(20,20,20,0.07) 1px, transparent 0) var(--bg);
+      background-size: 24px 24px;
+    }
+    a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; }
+    a:hover { color: var(--accent); }
+    .page { width: min(1020px, 100%); padding: 24px 20px 72px; margin: 0 auto; }
+    @media (min-width: 600px) { .page { padding: 28px 32px 72px; } }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px; padding-bottom: 48px;
+      color: var(--muted); font-size: 14px;
+    }
+    .brand { color: var(--ink); font-weight: 700; letter-spacing: -0.02em; }
+
+    .hero { padding: 16px 0 64px; border-bottom: 1px solid var(--line); }
+    .label { font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+    h1 {
+      font-size: clamp(40px, 9vw, 100px); line-height: 0.92;
+      letter-spacing: -0.07em; margin: 0 0 28px; max-width: 900px;
+    }
+    .hero-copy {
+      font-size: clamp(19px, 3vw, 30px); line-height: 1.25;
+      letter-spacing: -0.03em; margin: 0 0 14px; color: var(--muted); max-width: 800px;
+    }
+    .hero-copy b { color: var(--ink); }
+
+    section { padding: 60px 0; border-bottom: 1px solid var(--line); }
+    h2 { margin: 0 0 8px; font-size: 12px; line-height: 1.2; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    h3 { margin: 0 0 22px; font-size: clamp(26px, 5vw, 52px); line-height: 0.98; letter-spacing: -0.055em; max-width: 860px; }
+    .lead { max-width: 820px; margin: 0 0 24px; font-size: clamp(17px, 2.6vw, 24px); line-height: 1.32; letter-spacing: -0.025em; color: var(--muted); }
+    .lead b { color: var(--ink); }
+    .body-copy { max-width: 760px; color: var(--muted); font-size: 17px; margin: 0 0 16px; line-height: 1.65; }
+    .body-copy b { color: var(--ink); }
+
+    /* DARK BAND */
+    .dark-band {
+      background: var(--dark); color: var(--bg);
+      margin-left: -20px; margin-right: -20px;
+      padding-left: 20px; padding-right: 20px;
+      border-bottom: none;
+    }
+    @media (min-width: 600px) {
+      .dark-band { margin-left: -32px; margin-right: -32px; padding-left: 32px; padding-right: 32px; }
+    }
+    .dark-band h3 { color: var(--bg); }
+    .dark-band .lead { color: var(--dark-muted); }
+    .dark-band .lead b { color: var(--bg); }
+
+    /* THEN/NOW COMPARISON */
+    .then-now { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 32px; }
+    @media (min-width: 640px) { .then-now { grid-template-columns: 1fr 1fr; } }
+    .tn-col { border: 1px solid rgba(246,241,232,0.2); padding: 26px; }
+    .tn-col.now { border-color: var(--accent); }
+    .tn-col .tn-year { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px; display: block; font-weight: 700; color: var(--dark-muted); }
+    .tn-col.now .tn-year { color: var(--accent); }
+    .tn-col ul { padding-left: 18px; margin: 0; }
+    .tn-col li { margin: 12px 0; font-size: 16px; color: var(--dark-muted); line-height: 1.5; }
+    .tn-col.now li { color: var(--bg); }
+
+    /* GAP STATEMENT */
+    .gap-statement {
+      background: var(--accent); color: #fff; padding: 32px; margin-top: 32px;
+    }
+    .gap-statement p { font-size: clamp(19px, 3vw, 28px); line-height: 1.3; letter-spacing: -0.03em; margin: 0; font-weight: 600; }
+
+    /* WORKFLOW CARDS */
+    .workflow { background: var(--card); border: 1px solid var(--line); padding: 26px; margin-bottom: 14px; }
+    .workflow .wf-num { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 800; margin-bottom: 10px; display: block; }
+    .workflow .wf-title { font-size: clamp(19px, 3vw, 26px); letter-spacing: -0.035em; margin-bottom: 18px; display: block; font-weight: 700; }
+    .wf-compare { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 640px) { .wf-compare { grid-template-columns: 1fr 1fr; } }
+    .wf-side label { display: block; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--soft); margin-bottom: 8px; font-weight: 700; }
+    .wf-side.after label { color: var(--accent); }
+    .wf-side p { font-size: 15px; color: var(--muted); margin: 0; line-height: 1.6; }
+    .wf-side.after { border-left: 3px solid var(--accent); padding-left: 16px; }
+    .wf-side.after p { color: var(--ink); }
+
+    /* BARRIER LIST */
+    .barrier-list { display: grid; gap: 0; margin-top: 28px; }
+    .barrier { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 24px 0; border-top: 1px solid var(--line); }
+    @media (min-width: 600px) { .barrier { grid-template-columns: 64px 1fr; gap: 24px; } }
+    .barrier:first-child { border-top: none; }
+    .barrier .b-num { font-size: clamp(24px, 4vw, 36px); font-weight: 800; letter-spacing: -0.05em; color: var(--accent); line-height: 1; }
+    .barrier b { display: block; font-size: clamp(18px, 2.8vw, 23px); letter-spacing: -0.03em; margin-bottom: 8px; }
+    .barrier p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; max-width: 720px; }
+
+    /* PLAYBOOK */
+    .play-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 28px; }
+    @media (min-width: 640px) { .play-grid { grid-template-columns: 1fr 1fr; } }
+    .play-card { background: var(--card); border: 1px solid var(--line); padding: 24px; }
+    .play-card .p-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; display: block; font-weight: 700; }
+    .play-card b { display: block; font-size: 19px; letter-spacing: -0.03em; margin-bottom: 10px; }
+    .play-card p { font-size: 15px; color: var(--muted); margin: 0; line-height: 1.6; }
+    /* HORIZON */
+    .horizon { display: grid; gap: 14px; margin-top: 28px; }
+    .horizon-row { background: var(--card); border: 1px solid var(--line); padding: 24px; display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 640px) { .horizon-row { grid-template-columns: 150px 1fr; gap: 28px; align-items: start; } }
+    .horizon-tag { display: flex; flex-direction: column; gap: 4px; }
+    .horizon-when { font-size: clamp(19px, 3vw, 26px); font-weight: 800; letter-spacing: -0.04em; color: var(--accent); line-height: 1.05; }
+    .horizon-unit { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .horizon-body b { display: block; font-size: clamp(17px, 2.5vw, 21px); letter-spacing: -0.03em; margin-bottom: 8px; }
+    .horizon-body p { color: var(--muted); font-size: 15px; margin: 0 0 10px; line-height: 1.6; }
+    .horizon-body p:last-child { margin-bottom: 0; }
+    .horizon-body p b { display: inline; font-size: inherit; color: var(--ink); margin: 0; }
+
+    /* CLOSING */
+    .closing { padding: 72px 0 56px; border-bottom: none; }
+    .pattern-box { background: var(--dark); color: var(--bg); padding: 32px; margin-top: 28px; }
+    .pattern-box .pb-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: block; font-weight: 700; }
+    .pattern-box p { font-size: clamp(17px, 2.5vw, 22px); line-height: 1.45; letter-spacing: -0.02em; margin: 0 0 16px; color: var(--dark-muted); }
+    .pattern-box p:last-child { margin-bottom: 0; }
+    .pattern-box p b { color: var(--bg); }
+
+    .author { padding: 48px 0 0; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); }
+    .author .a-name { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .author .a-bio { font-size: 15px; color: var(--muted); max-width: 640px; line-height: 1.6; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--ink); border-radius: 999px; padding: 11px 16px;
+      font-size: 14px; font-weight: 700; background: var(--ink);
+      color: var(--bg); text-decoration: none; border-bottom: none;
+    }
+    .button:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .button.secondary { background: transparent; color: var(--ink); }
+    .button.secondary:hover { background: transparent; border-color: var(--accent); color: var(--accent); }
+    footer { padding: 24px 0 0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 13px; }
+
+    /* ── MOBILE REFINEMENTS ── */
+    @media (max-width: 560px) {
+      .page { padding: 20px 18px 48px; }
+      section { padding: 40px 0; }
+      .hero { padding: 12px 0 44px; }
+      .closing { padding: 48px 0 40px; }
+      .cta-row { gap: 8px; margin-top: 22px; }
+      .cta-row .button { flex: 1 1 100%; width: 100%; padding: 13px 16px; }
+      .hero-thesis { padding: 22px; margin-top: 26px; }
+      .pattern-box { padding: 24px; }
+      .horizon-row { padding: 20px; }
+      .play-card { padding: 20px; }
+      .author { padding: 36px 0; }
+      h3 { margin-bottom: 16px; }
+      .lead { margin-bottom: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <span class="brand">Srivatsa V Jamadagni</span>
+      <span>Cyber Resilience &amp; Data Protection · Bangalore</span>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+      <p class="label">A field note on data protection in the age of AI-accelerated ransomware</p>
+      <h1>Data Protection Is Cyber Resilience.</h1>
+      <p class="hero-copy">
+        For years, backup was treated as insurance: a cost centre you funded and hoped never to use.
+        That framing is now dangerously out of date.
+      </p>
+      <p class="hero-copy">
+        <b>When ransomware targets the backups first, your data protection layer is no longer the fallback. It is the front line of defence.</b>
+      </p>
+    </div>
+
+    <!-- THE SHIFT -->
+    <section class="dark-band">
+      <h2>The Shift</h2>
+      <h3>Ransomware changed what backup is for.</h3>
+      <p class="lead">
+        Attackers learned the obvious lesson: if they encrypt production but the victim restores from backup, the attack fails.
+        So now they go after the backups first. That single change rewrote the job of data protection.
+      </p>
+
+      <div class="then-now">
+        <div class="tn-col">
+          <span class="tn-year">Backup as it was treated</span>
+          <ul>
+            <li>Insurance you hoped never to claim.</li>
+            <li>Measured by whether jobs completed overnight.</li>
+            <li>Owned by IT operations, away from security.</li>
+            <li>Recovery tested once a year, if at all.</li>
+            <li>A cost centre, not a strategy.</li>
+          </ul>
+        </div>
+        <div class="tn-col now">
+          <span class="tn-year">Data protection as cyber resilience</span>
+          <ul>
+            <li>The last line of defence when prevention fails.</li>
+            <li>Measured by how fast you can recover clean data.</li>
+            <li>A shared concern of SecOps, IT, and the CISO.</li>
+            <li>Recovery validated continuously, not annually.</li>
+            <li>A board-level resilience metric.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="gap-statement">
+        <p>The industry has accepted this in principle. Survival now depends less on stopping every attack and more on recovering faster than the attacker can adapt. And yet the backup admin validating recovery this morning did it the same way they did in 2022. The thesis moved. The daily workflow did not.</p>
+      </div>
+    </section>
+
+    <!-- THE GAP -->
+    <section>
+      <h2>The Real Gap</h2>
+      <h3>Owning the tools is not the same as operating them as defence.</h3>
+      <p class="lead">
+        Most enterprises already own strong cyber-resilience capabilities. Far fewer operate them as a living, tested, intelligent line of defence.
+      </p>
+      <p class="body-copy">
+        <b>The capability curve</b> is steep. Modern platforms ship immutable storage, air-gapped copies, anomaly detection in backups,
+        and isolated recovery environments. Commvault, where I work, has Threat Scan looking for malware during, after, and before restore,
+        ThreatWise decoys that trip an attacker during reconnaissance, and Cleanroom Recovery for isolated, tested restores. The technology is genuinely there.
+      </p>
+      <p class="body-copy">
+        <b>The operational curve</b> is nearly flat. Those capabilities sit configured-but-passive. Recovery is assumed, not proven.
+        Threat signals in the backup estate go unwatched in real time. The air gap exists, but no one has tested whether they could actually
+        rebuild the business from it inside the RTO. The features are bought. The resilience is unverified.
+      </p>
+      <p class="body-copy">
+        This is the last mile of cyber resilience: the distance between an organisation that <b>has data protection</b>
+        and one whose <b>recovery is continuously proven and intelligently defended</b>. The capability crossed the gap. The daily operation has not.
+        And the daily operation is what decides whether you survive the worst day.
+      </p>
+    </section>
+
+    <!-- WHAT IT LOOKS LIKE WHEN IT CHANGES -->
+    <section>
+      <h2>What Crossing the Last Mile Looks Like</h2>
+      <h3>Five resilience workflows, before and after.</h3>
+      <p class="lead">
+        These are not hypotheticals. With AI now reaching into data-protection platforms through open standards like MCP,
+        every one of these is deployable today. The examples come from the world I work in, data protection and cyber recovery.
+      </p>
+
+      <div class="workflow">
+        <span class="wf-num">Workflow 01</span>
+        <span class="wf-title">Recovery readiness validation</span>
+        <div class="wf-compare">
+          <div class="wf-side">
+            <label>The current Tuesday</label>
+            <p>Recovery posture is assumed between annual DR drills. Nobody can answer "could we meet our RTO today" without scheduling a test. I have run game days where teams discovered their real recovery time for the first time, under pressure, in front of each other.</p>
+          </div>
+          <div class="wf-side after">
+            <label>The agentic Tuesday</label>
+            <p>"If we were hit today, could we meet the 4-hour RTO on tier-1 systems, and which workloads have no clean restore point?" An agent queries the platform, checks recent Cleanpoint integrity, and answers with evidence. Readiness becomes standing knowledge, not an annual hope.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow">
+        <span class="wf-num">Workflow 02</span>
+        <span class="wf-title">Ransomware signal in the backup estate</span>
+        <div class="wf-compare">
+          <div class="wf-side">
+            <label>The current Tuesday</label>
+            <p>Threat Scan and ThreatWise generate signals, but they land in a console nobody watches continuously. A decoy gets tripped or malware is flagged in a backup, and the finding waits until someone happens to look. The early warning exists but is not operationalised.</p>
+          </div>
+          <div class="wf-side after">
+            <label>The agentic Tuesday</label>
+            <p>An agent watches those detection signals in real time, correlates a tripped ThreatWise sensor with anomalous backup behaviour, raises the incident with context attached, and surfaces the last known-clean recovery point, while the intrusion is still early.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow">
+        <span class="wf-num">Workflow 03</span>
+        <span class="wf-title">Failed backup job triage</span>
+        <div class="wf-compare">
+          <div class="wf-side">
+            <label>The current Tuesday</label>
+            <p>Overnight jobs fail. Morning triage means opening each failure, reading logs, finding the cause, raising a ticket for each, assigning, following up. Two hours gone before the real work starts, and an unprotected workload is an open door for an attacker.</p>
+          </div>
+          <div class="wf-side after">
+            <label>The agentic Tuesday</label>
+            <p>Through Commvault's MCP interface, an agent detects the failures overnight, analyses root cause, creates the ServiceNow tickets with diagnostic context, and presents a morning summary that flags which failures left data exposed. Triage becomes review.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow">
+        <span class="wf-num">Workflow 04</span>
+        <span class="wf-title">Clean recovery and forensic staging</span>
+        <div class="wf-compare">
+          <div class="wf-side">
+            <label>The current Tuesday</label>
+            <p>After an incident, the team races to find a clean restore point and rebuild, hoping they do not reintroduce the malware. Forensic analysis competes with the pressure to get production back. The two needs fight each other in the worst moment.</p>
+          </div>
+          <div class="wf-side after">
+            <label>The agentic Tuesday</label>
+            <p>Cleanroom Recovery spins up an isolated environment on demand. An agent stages the last known-clean copy, runs threat detection on it before it touches production, and lets responders investigate safely while recovery proceeds in parallel. Recovery and forensics stop competing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="workflow">
+        <span class="wf-num">Workflow 05</span>
+        <span class="wf-title">Compliance and resilience evidence</span>
+        <div class="wf-compare">
+          <div class="wf-side">
+            <label>The current Tuesday</label>
+            <p>Audit and cyber-insurance season arrives. Weeks of pulling job histories, retention proofs, and recovery-test records into spreadsheets. Evidence collection as a quarterly fire drill, even though insurers increasingly want proof of validated, tested recovery.</p>
+          </div>
+          <div class="wf-side after">
+            <label>The agentic Tuesday</label>
+            <p>"Generate the validated-recovery evidence for the regulated data, last quarter, in the assessor's format." Evidence on demand, drawn live from the platform, with the query's own audit trail preserved. Resilience evidence becomes as routine as a financial report.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY THE GAP PERSISTS -->
+    <section>
+      <h2>Why the Gap Persists</h2>
+      <h3>Five honest reasons the last mile is hard.</h3>
+      <p class="lead">
+        If the capabilities exist and the conviction exists, why does data protection still sit configured-but-passive in so many enterprises?
+        From what I see working with enterprises every week:
+      </p>
+
+      <div class="barrier-list">
+        <div class="barrier">
+          <div class="b-num">01</div>
+          <div>
+            <b>Backup still reports to IT, not security</b>
+            <p>Data protection grew up as an infrastructure function, measured on job completion. Reframing it as a line of cyber defence means it now belongs in the security conversation too. That organisational shift lags the technical reality, and unowned ground does not get defended.</p>
+          </div>
+        </div>
+        <div class="barrier">
+          <div class="b-num">02</div>
+          <div>
+            <b>Recovery is assumed, not proven</b>
+            <p>Teams trust that backups will restore because they completed. But ransomware targets the backups, and a copy that completed is not the same as a copy that is clean and recoverable inside the RTO. The gap between assumed and proven recovery is where worst days are lost.</p>
+          </div>
+        </div>
+        <div class="barrier">
+          <div class="b-num">03</div>
+          <div>
+            <b>The signals exist but nobody watches them live</b>
+            <p>Threat detection in the backup estate, decoys, anomaly alerts, these generate genuine early warnings. But early warning only works if something is watching in real time and acting. Configured-and-forgotten detection is detection that fails when it matters.</p>
+          </div>
+        </div>
+        <div class="barrier">
+          <div class="b-num">04</div>
+          <div>
+            <b>The act-on-recovery trust cliff</b>
+            <p>Enterprises will let AI read backup status and report. The cliff comes at letting it act: isolate a workload, trigger a recovery, quarantine a suspect copy. Crossing it needs guardrails, audit trails, and approval workflows most teams have not designed. The hesitation is rational. The absence of a designed path across it is the actual problem.</p>
+          </div>
+        </div>
+        <div class="barrier">
+          <div class="b-num">05</div>
+          <div>
+            <b>Workflow redesign is harder than buying capability</b>
+            <p>Owning Cleanroom Recovery or threat scanning changes nothing by itself. The operational workflow has to be redesigned around it: what the agent watches, when it acts, where the human confirms, how recovery and forensics run in parallel. That is design work needing someone who understands both data protection and what AI can safely do. Those people are rare. That translation layer is the scarcest resource in cyber resilience.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE PLAYBOOK -->
+    <section>
+      <h2>Closing the Last Mile</h2>
+      <h3>The playbook that works.</h3>
+      <p class="lead">
+        I have run versions of this inside my own organisation and with enterprise teams.
+        None of it is complicated. All of it is deliberate.
+      </p>
+
+      <div class="play-grid">
+        <div class="play-card">
+          <span class="p-label">Step 1</span>
+          <b>Reframe backup as defence, with security in the room</b>
+          <p>The first move is organisational, not technical. Get SecOps and the data-protection team to the same table. The moment backup is discussed as a line of defence rather than an IT chore, the recovery questions get sharper and the investment case writes itself.</p>
+        </div>
+        <div class="play-card">
+          <span class="p-label">Step 2</span>
+          <b>Run a recovery game day, not a drill</b>
+          <p>Put the team in a room and run a real recovery scenario against real systems. Use a cleanroom so it is safe. The moment a team discovers their true RTO, or finds a workload with no clean restore point, the resilience conversation changes permanently. I have watched it happen.</p>
+        </div>
+        <div class="play-card">
+          <span class="p-label">Step 3</span>
+          <b>Design the trust ladder for action</b>
+          <p>Read access first: let AI watch detection signals and report. Then act-with-approval: it proposes isolating a suspect copy, a human confirms. Then bounded autonomy for low-risk, reversible actions with full audit trails. Make the ladder explicit, so the CISO review is about which rung, not whether.</p>
+        </div>
+        <div class="play-card">
+          <span class="p-label">Step 4</span>
+          <b>Measure recovery time, then scale sideways</b>
+          <p>Count what changed: minutes off detection-to-isolation, hours off recovery validation. That number funds the next workflow and becomes your resilience evidence for insurers and auditors. Internal results travel faster than any vendor deck.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOMORROW / HORIZON -->
+    <section>
+      <h2>The Next Conversation</h2>
+      <h3>Where this goes from here.</h3>
+      <p class="lead">
+        Closing today's last mile is the work in front of us. But the same protocols solving today's friction
+        open a horizon most teams have not started planning for. Here is what the conversation looks like next.
+      </p>
+
+      <div class="horizon">
+        <div class="horizon-row">
+          <div class="horizon-tag">
+            <span class="horizon-when">Now to 12 months</span>
+            <span class="horizon-unit">Conversational resilience</span>
+          </div>
+          <div class="horizon-body">
+            <b>From dashboards to dialogue</b>
+            <p>The near-term shift is already underway: resilience work moves from consoles to conversation. An admin asks about recovery readiness, clean restore points, and backup threat signals in natural language, and acts within guardrails. The win is <b>readiness becoming standing knowledge</b> instead of an annual drill.</p>
+            <p>This is incremental and safe. Read access first, bounded actions next. Most teams can reach this within a year if they redesign workflows deliberately rather than waiting for it to happen on its own.</p>
+          </div>
+        </div>
+
+        <div class="horizon-row">
+          <div class="horizon-tag">
+            <span class="horizon-when">12 to 24 months</span>
+            <span class="horizon-unit">Autonomous recovery operations</span>
+          </div>
+          <div class="horizon-body">
+            <b>From asking to delegating</b>
+            <p>The next shift moves from "ask the agent" to "give the agent a goal." Instead of an admin checking whether backups are clean, an agent continuously monitors recovery posture, watches threat signals across the data estate, quarantines suspect copies within policy, and escalates only the exceptions. The admin moves from <b>operator to supervisor of an autonomous resilience layer.</b></p>
+            <p>The technical enabler exists today. The blocker is organisational: trust frameworks, accountability models, and the autonomy ladder maturing to where a team is comfortable letting an agent quarantine a copy at 2am without a human in the loop. The organisations that build those frameworks now will be ready; the ones still debating them will not.</p>
+          </div>
+        </div>
+
+        <div class="horizon-row">
+          <div class="horizon-tag">
+            <span class="horizon-when">24 months and beyond</span>
+            <span class="horizon-unit">Self-defending data</span>
+          </div>
+          <div class="horizon-body">
+            <b>From recovery to resilience-in-depth</b>
+            <p>The horizon I find most compelling is data that defends itself. Today, cyber recovery is reactive: an attack happens, then teams recover. The next generation is <b>predictive and autonomous</b>: agents that watch for the behavioural signatures of ransomware across the data estate, isolate affected workloads before encryption spreads, validate clean recovery points automatically, and orchestrate recovery while the security team is still being paged.</p>
+            <p>Data protection stops being insurance you hope you never claim, and becomes an active, intelligent layer of the enterprise's defence. The backup admin's role evolves from running restore jobs to designing the policies that govern an autonomous resilience system. That is a fundamentally more strategic seat, and it is the natural endpoint of treating data protection as cyber resilience.</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="body-copy" style="margin-top:28px;">
+        None of this requires waiting for a better model. Every capability described here is buildable on what exists today.
+        What it requires is organisations that start designing for the horizon now, and advisors who can see both the
+        operational reality of this morning's failed backup job and the architecture of where it is heading. <b>The gap between those
+        two views is exactly where resilience is built.</b>
+      </p>
+    </section>
+
+    <!-- CLOSING -->
+    <section class="closing">
+      <h3>The thesis.</h3>
+      <div class="pattern-box">
+        <span class="pb-label">Where cyber resilience actually is</span>
+        <p>The capability battle is largely won. Enterprises own immutability, air gaps, threat detection in backups, and isolated recovery. What remains is the hardest and least glamorous part: <b>operating all of it as a living, tested, intelligent line of defence.</b></p>
+        <p>That work does not need another feature. It needs people who can sit with a data-protection team and a SOC, understand their worst day, connect AI to their real recovery systems safely, and walk them across the trust cliff one rung at a time.</p>
+        <p><b>Data protection is cyber resilience. But only when it is operated that way.</b> And operating it that way is a translation problem, which is a human skill.</p>
+      </div>
+    </section>
+
+    <!-- AUTHOR -->
+    <div class="author">
+      <div class="a-name">Srivatsa V Jamadagni</div>
+      <div class="a-bio">
+        Enterprise Pre-Sales Solutions Architect with 6+ years at Commvault and Dell Technologies,
+        working with enterprises across India, EMEA, and the US on data protection, cyber resilience,
+        and cloud architecture. I run recovery game days for operational teams and work at the intersection
+        of cyber resilience and AI adoption. Based in Bangalore.
+      </div>
+      <div class="cta-row">
+        <a class="button" href="assessment.html">Score your resilience AI posture</a>
+        <a class="button secondary" href="mailto:srivatsa.jamadagni@gmail.com">Get in touch</a>
+        <a class="button secondary" href="https://linkedin.com/in/srivatsa-v-jamadagni-00538bb7" target="_blank" rel="noreferrer">LinkedIn</a>
+      </div>
+    </div>
+
+    <footer>
+      <div>© Srivatsa V Jamadagni · Bangalore, India</div>
+      <div>Written from experience, not a survey.</div>
+    </footer>
+  </main>
+</body>
+</html>
